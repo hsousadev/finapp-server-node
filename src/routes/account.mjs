@@ -13,9 +13,7 @@ router.post("/account", async (request, response) => {
   const { name } = request.body;
 
   if (/^\s*$/.test(name)) {
-    return response
-      .status(400)
-      .send("Name is empty or contains only spaces");
+    return response.status(400).send("Name is empty or contains only spaces");
   }
 
   const nameAlreadyExists = await prisma.accounts.findMany({
@@ -25,7 +23,9 @@ router.post("/account", async (request, response) => {
   });
 
   if (nameAlreadyExists.length > 0) {
-    return response.status(400).send("An account with that name already exists");
+    return response
+      .status(400)
+      .send("An account with that name already exists");
   }
 
   let logoImg = "";
@@ -53,14 +53,14 @@ router.put("/account", accountAlreadyExists, async (request, response) => {
   const { id } = request.headers;
 
   if (!isImageURL(logoImg)) {
-    return response.status(404).send('The string is not a valid image URL.')
+    return response.status(404).send("The string is not a valid image URL.");
   }
 
   await prisma.accounts.update({
     where: { id: id },
     data: {
       name,
-      logoImg
+      logoImg,
     },
   });
 
@@ -69,7 +69,11 @@ router.put("/account", accountAlreadyExists, async (request, response) => {
 
 // Retornar todas as contas
 router.get("/accounts", async (request, response) => {
-  const allAccounts = await prisma.accounts.findMany();
+  const allAccounts = await prisma.accounts.findMany({
+    include: {
+      statements: true,
+    },
+  });
 
   return response.json(allAccounts);
 });

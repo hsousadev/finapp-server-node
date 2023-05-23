@@ -2,14 +2,18 @@ import express from "express";
 import accountAlreadyExists from "../middlewares/accountAlreadyExists.mjs";
 import getBalance from "../middlewares/getBalance.mjs";
 
+import { prisma } from "../lib/prisma.mjs";
+
 const router = express.Router();
 
-// Registra um saque no extrato do conta
-router.post("/withdraw", accountAlreadyExists, (request, response) => {
+// Registra um saque no extrato de uma conta
+router.post("/withdraw", accountAlreadyExists, async (request, response) => {
   const { amount, description } = request.body;
-  const { account } = request;
+  let { account } = request;
 
-  const balance = getBalance(account.statement);
+  const statements = await prisma.statements.findMany();
+
+  const balance = getBalance(statements);
 
   if (balance < amount) {
     return response.status(400).send({ error: "Insufficient funds" });
@@ -22,9 +26,14 @@ router.post("/withdraw", accountAlreadyExists, (request, response) => {
     type: "debit",
   };
 
-  account.statement.push(statementOperation);
+  account = await prisma.statements.create({
+    data: {
+      accountId: account.id,
+      ...statementOperation,
+    },
+  });
 
-  return response.status(201).send();
+  return response.status(201).send("Operation created successfully");
 });
 
 export default router;

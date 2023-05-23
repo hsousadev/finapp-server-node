@@ -1,5 +1,4 @@
 import express from "express";
-import { PrismaClient } from '@prisma/client'
 
 import account from "./routes/account.mjs";
 import statement from "./routes/statement.mjs";

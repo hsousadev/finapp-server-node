@@ -1,25 +1,32 @@
 import express from "express";
-import accountAlreadyExists from "../middlewares/accountAlreadyExists.mjs"
+import { prisma } from "../lib/prisma.mjs";
+
+import accountAlreadyExists from "../middlewares/accountAlreadyExists.mjs";
+import { v4 as uuidv4 } from "uuid";
 
 const router = express.Router();
 
 // Registra um depósito no extrato de uma conta
-router.post("/deposit", accountAlreadyExists, (request, response) => {
+router.post("/deposit", accountAlreadyExists, async (request, response) => {
   const { description, amount } = request.body;
-
-  const { account } = request;
+  let { account } = request;
 
   const statementOperation = {
+    id: uuidv4(),
     description,
     amount,
     created_at: new Date(),
     type: "credit",
   };
 
-  account.statement.push(statementOperation);
+  account = await prisma.statements.create({
+    data: {
+      accountId: account.id,
+      ...statementOperation,
+    },
+  });
 
-  return response.status(201).send();
+  return response.status(201).send("Operation created successfully!");
 });
 
 export default router;
-
