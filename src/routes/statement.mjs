@@ -1,11 +1,22 @@
-import express from 'express';
+import express from "express";
 import { prisma } from "../lib/prisma.mjs";
 
-import accountAlreadyExists from '../middlewares/accountAlreadyExists.mjs';
+import accountAlreadyExists from "../middlewares/accountAlreadyExists.mjs";
 
 const router = express.Router();
 
-// Verificar o extrato de uma conta
+// Retorna o extrato geral de todas as contas
+router.get("/statement/all", async (request, response) => {
+  const statements = await prisma.statements.findMany({
+    include: {
+      Account: true,
+    },
+  });
+
+  return response.json(statements);
+});
+
+// Verificar todo o extrato de uma conta
 router.get("/statement", accountAlreadyExists, async (request, response) => {
   const { account } = request;
 
@@ -16,12 +27,9 @@ router.get("/statement", accountAlreadyExists, async (request, response) => {
   return response.json(statements);
 });
 
-// Pesquisar registros em uma data no extrato
 router.get("/statement/date", accountAlreadyExists, async (request, response) => {
   const { account } = request;
-  const { date } = request.query;
-
-  const dateFormat = new Date(date + " 00:00");
+  const { date }  = request.query;
 
   const statements = await prisma.statements.findMany({
     where: { accountId: account.id },
@@ -30,10 +38,63 @@ router.get("/statement/date", accountAlreadyExists, async (request, response) =>
   const statement = statements.filter(
     (statement) =>
       new Date(statement.created_at).toDateString() ===
-      new Date(dateFormat).toDateString()
+      new Date(date).toDateString()
   );
 
   return response.json(statement);
+});
+
+// Retorna um único registro de extrato de uma conta
+router.get(
+  "/statement/:id",
+  accountAlreadyExists,
+  async (request, response) => {
+    const { id } = request.query;
+
+    const statements = await prisma.statements.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        Account: true,
+      },
+    });
+
+    return response.json(statements);
+  }
+);
+
+// Deleta um único registro de extrato de uma conta
+router.delete(
+  "/statement/:id",
+  accountAlreadyExists,
+  async (request, response) => {
+    const { id } = request.query;
+
+    const statements = await prisma.statements.delete({
+      where: {
+        id: id,
+      },
+      include: {
+        Account: true,
+      },
+    });
+
+    return response.json(statements);
+  }
+);
+
+// Pesquisar registros em uma data no extrato GERAL
+router.get("/statement/date/all", async (request, response) => {
+  const { date } = request.query;
+
+  const statements = await prisma.statements.findMany({
+    where: {
+      created_at: date,
+    },
+  });
+
+  return response.json(statements);
 });
 
 export default router;

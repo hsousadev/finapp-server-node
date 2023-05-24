@@ -8,14 +8,14 @@ const router = express.Router();
 
 // Registra um depósito no extrato de uma conta
 router.post("/deposit", accountAlreadyExists, async (request, response) => {
-  const { description, amount } = request.body;
+  const { description, amount, date } = request.body;
   let { account } = request;
 
   const statementOperation = {
     id: uuidv4(),
     description,
     amount,
-    created_at: new Date(),
+    created_at: date,
     type: "credit",
   };
 

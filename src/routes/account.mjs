@@ -50,14 +50,14 @@ router.post("/account", async (request, response) => {
 // Alterar uma conta
 router.put("/account", accountAlreadyExists, async (request, response) => {
   const { name, logoImg } = request.body;
-  const { id } = request.headers;
+  const { account } = request;
 
   if (!isImageURL(logoImg)) {
     return response.status(404).send("The string is not a valid image URL.");
   }
 
   await prisma.accounts.update({
-    where: { id: id },
+    where: { id: account.id },
     data: {
       name,
       logoImg,
@@ -81,24 +81,23 @@ router.get("/accounts", async (request, response) => {
 // Retornar uma conta
 router.get("/account", accountAlreadyExists, async (request, response) => {
   const { account } = request;
-  const { id } = request.headers;
 
-  await prisma.accounts.findUnique({
+  const singleAccount = await prisma.accounts.findUnique({
     where: {
-      id: id,
+      id: account.id,
     },
   });
 
-  return response.json(account);
+  return response.json(singleAccount);
 });
 
 // Deletar uma conta
 router.delete("/account", accountAlreadyExists, async (request, response) => {
-  const { id } = request.headers;
+  const { account } = request;
 
   await prisma.accounts.delete({
     where: {
-      id: id,
+      id: account.id,
     },
   });
 
