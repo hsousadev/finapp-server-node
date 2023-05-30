@@ -11,6 +11,9 @@ router.get("/statement/all", async (request, response) => {
     include: {
       Account: true,
     },
+    orderBy: {
+      created_at: "desc",
+    },
   });
 
   return response.json(statements);
@@ -27,22 +30,26 @@ router.get("/statement", accountAlreadyExists, async (request, response) => {
   return response.json(statements);
 });
 
-router.get("/statement/date", accountAlreadyExists, async (request, response) => {
-  const { account } = request;
-  const { date }  = request.query;
+router.get(
+  "/statement/date",
+  accountAlreadyExists,
+  async (request, response) => {
+    const { account } = request;
+    const { date } = request.query;
 
-  const statements = await prisma.statements.findMany({
-    where: { accountId: account.id },
-  });
+    const statements = await prisma.statements.findMany({
+      where: { accountId: account.id },
+    });
 
-  const statement = statements.filter(
-    (statement) =>
-      new Date(statement.created_at).toDateString() ===
-      new Date(date).toDateString()
-  );
+    const statement = statements.filter(
+      (statement) =>
+        new Date(statement.created_at).toDateString() ===
+        new Date(date).toDateString()
+    );
 
-  return response.json(statement);
-});
+    return response.json(statement);
+  }
+);
 
 // Retorna um único registro de extrato de uma conta
 router.get(

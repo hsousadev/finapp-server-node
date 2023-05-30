@@ -4,6 +4,7 @@ import { prisma } from "../lib/prisma.mjs";
 
 import banksLogo from "../bankLogos.mjs";
 import accountAlreadyExists from "../middlewares/accountAlreadyExists.mjs";
+import getBalance from "../middlewares/getBalance.mjs";
 import isImageURL from "../middlewares/isImageURL.mjs";
 
 const router = express.Router();
@@ -86,9 +87,19 @@ router.get("/account", accountAlreadyExists, async (request, response) => {
     where: {
       id: account.id,
     },
+    include: {
+      statements: true,
+    },
   });
 
-  return response.json(singleAccount);
+  const balance = getBalance(singleAccount.statements);
+
+  const accountWithBalance = {
+    singleAccount,
+    balance,
+  };
+
+  return response.json(accountWithBalance);
 });
 
 // Deletar uma conta
