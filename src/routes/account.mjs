@@ -81,8 +81,8 @@ router.get("/accounts", async (request, response) => {
   allAccounts.some((account) => {
     const accountBalance = getBalance(account.statements);
     const newAccount = {
-      account,
-      accountBalance,
+      data: account,
+      balance: accountBalance,
     };
 
     allAccountsWithBalance.push(newAccount);
@@ -107,7 +107,7 @@ router.get("/account", accountAlreadyExists, async (request, response) => {
   const balance = getBalance(singleAccount.statements);
 
   const accountWithBalance = {
-    singleAccount,
+    data: singleAccount,
     balance,
   };
 
