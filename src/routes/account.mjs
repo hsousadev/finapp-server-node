@@ -76,7 +76,19 @@ router.get("/accounts", async (request, response) => {
     },
   });
 
-  return response.json(allAccounts);
+  const allAccountsWithBalance = [];
+
+  allAccounts.some((account) => {
+    const accountBalance = getBalance(account.statements);
+    const newAccount = {
+      account,
+      accountBalance,
+    };
+
+    allAccountsWithBalance.push(newAccount);
+  });
+
+  return response.json(allAccountsWithBalance);
 });
 
 // Retornar uma conta
