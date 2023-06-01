@@ -15,10 +15,15 @@ router.get("/expenses", accountAlreadyExists, async (request, response) => {
   return response.json(expenses);
 });
 
-
 // Retorna gastos totais (somando os gastos de todas as contas)
-router.get("/expenses/all", (request, response) => {
-  const balances = accounts.map((account) => getExpenses(account.statement));
+router.get("/expenses/all", async (request, response) => {
+  const allAccounts = await prisma.accounts.findMany({
+    include: {
+      statements: true,
+    },
+  });
+
+  const balances = allAccounts.map((account) => getExpenses(account.statements));
   let sum = balances.reduce((acc, balance) => {
     return acc + balance;
   });

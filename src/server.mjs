@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 
 import account from "./routes/account.mjs";
 import statement from "./routes/statement.mjs";
@@ -9,6 +10,7 @@ import expenses from "./routes/expenses.mjs";
 
 const app = express();
 
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.listen(3333, () => {
   console.log("🚀 Server is listening on port 3333");
