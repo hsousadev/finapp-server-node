@@ -50,18 +50,13 @@ router.post("/account", async (request, response) => {
 
 // Alterar uma conta
 router.put("/account", accountAlreadyExists, async (request, response) => {
-  const { name, logoImg } = request.body;
+  const { name } = request.body;
   const { account } = request;
-
-  if (!isImageURL(logoImg)) {
-    return response.status(404).send("The string is not a valid image URL.");
-  }
 
   await prisma.accounts.update({
     where: { id: account.id },
     data: {
       name,
-      logoImg,
     },
   });
 
