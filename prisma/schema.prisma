@@ -11,6 +11,7 @@ model Accounts {
   id         String       @id @default(uuid())
   name       String
   logoImg    String
+  created_at String
   statements Statements[]
 }
 

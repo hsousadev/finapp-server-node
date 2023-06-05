@@ -2,7 +2,8 @@
 CREATE TABLE "Accounts" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
-    "logoImg" TEXT NOT NULL
+    "logoImg" TEXT NOT NULL,
+    "created_at" TEXT NOT NULL
 );
 
 -- CreateTable

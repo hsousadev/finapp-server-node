@@ -5,13 +5,14 @@ import { prisma } from "../lib/prisma.mjs";
 import banksLogo from "../bankLogos.mjs";
 import accountAlreadyExists from "../middlewares/accountAlreadyExists.mjs";
 import getBalance from "../middlewares/getBalance.mjs";
-import isImageURL from "../middlewares/isImageURL.mjs";
 
 const router = express.Router();
 
 // Criar uma conta
 router.post("/account", async (request, response) => {
-  const { name } = request.body;
+  const { name, imgUrl } = request.body;
+
+  let logoImg = imgUrl;
 
   if (/^\s*$/.test(name)) {
     return response.status(400).send("Name is empty or contains only spaces");
@@ -29,19 +30,20 @@ router.post("/account", async (request, response) => {
       .send("An account with that name already exists");
   }
 
-  let logoImg = "";
-
-  banksLogo.some((bank) => {
-    if (bank.name === name.toLowerCase()) {
-      logoImg = bank.img;
-    }
-  });
+  if (logoImg === "") {
+    banksLogo.some((bank) => {
+      if (bank.name === name.toLowerCase()) {
+        logoImg = bank.img;
+      }
+    });
+  }
 
   await prisma.accounts.create({
     data: {
       id: uuidv4(),
       name,
-      logoImg,
+      logoImg: logoImg,
+      created_at: new Date(),
     },
   });
 
@@ -50,8 +52,10 @@ router.post("/account", async (request, response) => {
 
 // Alterar uma conta
 router.put("/account", accountAlreadyExists, async (request, response) => {
-  const { name, logoImg } = request.body;
+  const { name, imgUrl } = request.body;
   const { account } = request;
+
+  let logoImg = imgUrl;
 
   await prisma.accounts.update({
     where: { id: account.id },
@@ -71,7 +75,7 @@ router.get("/accounts", async (request, response) => {
       statements: true,
     },
     orderBy: {
-      id: "asc",
+      created_at: "desc",
     },
   });
 
