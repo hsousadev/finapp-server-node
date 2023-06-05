@@ -50,13 +50,14 @@ router.post("/account", async (request, response) => {
 
 // Alterar uma conta
 router.put("/account", accountAlreadyExists, async (request, response) => {
-  const { name } = request.body;
+  const { name, logoImg } = request.body;
   const { account } = request;
 
   await prisma.accounts.update({
     where: { id: account.id },
     data: {
       name,
+      logoImg,
     },
   });
 
@@ -68,6 +69,9 @@ router.get("/accounts", async (request, response) => {
   const allAccounts = await prisma.accounts.findMany({
     include: {
       statements: true,
+    },
+    orderBy: {
+      id: "asc",
     },
   });
 
