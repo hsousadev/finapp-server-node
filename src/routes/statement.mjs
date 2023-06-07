@@ -25,6 +25,9 @@ router.get("/statement", accountAlreadyExists, async (request, response) => {
 
   const statements = await prisma.statements.findMany({
     where: { accountId: account.id },
+    orderBy: {
+      created_at: "desc",
+    },
   });
 
   return response.json(statements);
