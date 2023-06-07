@@ -8,7 +8,7 @@ const router = express.Router();
 
 // Registra um saque no extrato de uma conta
 router.post("/withdraw", accountAlreadyExists, async (request, response) => {
-  const { amount, description } = request.body;
+  const { amount, description, date } = request.body;
   let { account } = request;
 
   const statements = await prisma.statements.findMany();
@@ -22,7 +22,7 @@ router.post("/withdraw", accountAlreadyExists, async (request, response) => {
   const statementOperation = {
     description,
     amount,
-    created_at: new Date(),
+    created_at: date,
     type: "debit",
   };
 
