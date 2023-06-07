@@ -76,17 +76,14 @@ router.get(
 
 // Deleta um único registro de extrato de uma conta
 router.delete(
-  "/statement/:id",
+  "/statement/:accountId",
   accountAlreadyExists,
   async (request, response) => {
-    const { id } = request.query;
+    const { accountId } = request.query;
 
     const statements = await prisma.statements.delete({
       where: {
-        id: id,
-      },
-      include: {
-        Account: true,
+        id: accountId,
       },
     });
 
